@@ -9,8 +9,12 @@ never on the engine.
 
 ## Status
 
-**0.x, under construction.** The contract is being extracted from the engine step by step. Until 1.0, minor versions
-may break compatibility; 1.0 is frozen once two different tagpacks work without engine changes.
+**Version 0.1, under construction** (published as `0.1-SNAPSHOT` until its release). The contract is being extracted
+from the engine step by step. Until 1.0, every minor version (0.1, 0.2, …) may break compatibility; 1.0 is frozen once
+two different tagpacks work without engine changes.
+
+Available so far: the tag annotations and semantic types (`…api.tags`), the morpher contract (`…api.morphers`) and
+the reveries, Magid's typed values (`…api.reveries`).
 
 ## What it contains (when complete)
 
@@ -25,7 +29,20 @@ No engine code: implementations live in Magid.
 
 ## Using it
 
-Releases are published to GitHub Packages (Maven). Coordinates and setup follow with the first release.
+Published to GitHub Packages (Maven):
+
+```xml
+<dependency>
+    <groupId>com.zarterstein</groupId>
+    <artifactId>magid-api</artifactId>
+    <version>0.1-SNAPSHOT</version>
+    <scope>provided</scope> <!-- the engine supplies it at run time -->
+</dependency>
+```
+
+GitHub Packages asks for a token even for public packages: add the repository
+`https://maven.pkg.github.com/tearim/magid-api` to your pom, and a `server` with the same id to your Maven
+`settings.xml`, holding your GitHub user name and a personal access token with the `read:packages` scope.
 
 ## License
 
