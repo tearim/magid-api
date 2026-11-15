@@ -15,6 +15,8 @@ public record BooleanReverie(Boolean value) implements Reverie<Boolean> {
     public static final String TYPE = "boolean";
 
     /**
+     * Creates the reverie.
+     *
      * @param value the value
      * @throws NullPointerException if {@code value} is {@code null}
      */

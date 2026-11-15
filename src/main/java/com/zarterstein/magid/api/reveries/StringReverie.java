@@ -15,6 +15,8 @@ public record StringReverie(String value) implements Reverie<String> {
     public static final String TYPE = "string";
 
     /**
+     * Creates the reverie.
+     *
      * @param value the value
      * @throws NullPointerException if {@code value} is {@code null}
      */

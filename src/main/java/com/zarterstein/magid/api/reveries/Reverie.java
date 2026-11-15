@@ -20,16 +20,24 @@ package com.zarterstein.magid.api.reveries;
  */
 public interface Reverie<T> {
 
-    /** @return the value; never {@code null} */
+    /**
+     * The value.
+     *
+     * @return the value; never {@code null}
+     */
     T get();
 
     /**
+     * The type's name.
+     *
      * @return the type name, e.g. {@value IntegerReverie#TYPE}. Saves store it, so the names of the built-in types
      * never change.
      */
     String getType();
 
     /**
+     * Wraps a boolean.
+     *
      * @param value a boolean
      * @return a {@link BooleanReverie} holding it
      */
@@ -38,6 +46,8 @@ public interface Reverie<T> {
     }
 
     /**
+     * Wraps an integer.
+     *
      * @param value an integer
      * @return an {@link IntegerReverie} holding it
      */
@@ -46,6 +56,8 @@ public interface Reverie<T> {
     }
 
     /**
+     * Wraps a float.
+     *
      * @param value a float
      * @return a {@link FloatReverie} holding it
      */

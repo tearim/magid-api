@@ -16,6 +16,8 @@ public record FloatReverie(Float value) implements Reverie<Float> {
     public static final String TYPE = "float";
 
     /**
+     * Creates the reverie.
+     *
      * @param value the value
      * @throws NullPointerException if {@code value} is {@code null}
      */
