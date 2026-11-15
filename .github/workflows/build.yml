@@ -1,0 +1,46 @@
+name: Build and publish
+
+# Every push and pull request builds and tests. A push to master publishes the SNAPSHOT; a tag v<x.y.z> publishes
+# that release (the version comes from the tag) to GitHub Packages.
+on:
+  push:
+    branches: [ master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ master ]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      # server-id writes a settings.xml whose "github" server (the pom's distributionManagement id) uses these env vars
+      - name: Set up JDK 25
+        uses: actions/setup-java@v6
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+          server-id: github
+          server-username: GITHUB_ACTOR
+          server-password: GITHUB_TOKEN
+
+      - name: Build and test
+        run: mvn -B verify
+
+      - name: Take the release version from the tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: mvn -B versions:set -DnewVersion="${GITHUB_REF_NAME#v}" -DgenerateBackupPoms=false
+
+      - name: Publish to GitHub Packages
+        if: github.event_name == 'push'
+        run: mvn -B deploy -DskipTests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
