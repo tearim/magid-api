@@ -16,12 +16,12 @@ import org.w3c.dom.Element;
  */
 public interface MagidTagMorpherInterface {
     /**
-     * Transforms the given XML element.
+     * Alters (morphs) the given XML element.
      * This method is responsible for renaming the node and mapping shortcut attributes to their canonical forms.
      *
-     * @param el The XML element to transform.
+     * @param el The XML element to morph.
      */
-    void transform(Element el);
+    void morph(Element el);
 
     /**
      * Checks if this morpher is applicable to the given tag name.
