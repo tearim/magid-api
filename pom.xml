@@ -37,8 +37,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- The JPMS name, until a module-info exists -->
         <module.name>com.zarterstein.magid.api</module.name>
-        <!-- Javadoc refuses a package with no classes; remove this line when the first classes arrive (move plan, step 1) -->
-        <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
 
     <distributionManagement>
@@ -115,6 +113,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.11.2</version>
+                <configuration>
+                    <overview>${project.basedir}/src/main/javadoc/overview.html</overview>
+                </configuration>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
