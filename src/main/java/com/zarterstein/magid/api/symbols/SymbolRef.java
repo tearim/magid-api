@@ -30,6 +30,7 @@ package com.zarterstein.magid.api.symbols;
  * @param owner the actor of a memory or an attribute; {@code ""} for the other kinds
  * @param key   the name without prefix or owner; the input for {@link Type#ERROR}
  * @author Mark-Marion Gondelman (Creator)
+ * @author Refactoring: Claude Code (agentic refactoring)
  * @author JavaDocs: Claude Code (Model: claude-opus-5-5)
  */
 public record SymbolRef(Type type, String owner, String key) {
