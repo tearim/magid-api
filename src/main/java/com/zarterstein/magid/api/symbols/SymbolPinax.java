@@ -17,7 +17,7 @@ import java.util.Optional;
  * </p>
  * <p>
  * Reading never throws: an unknown or malformed name reads as empty. Writing a malformed name (an empty key or
- * owner, e.g. {@code player.}) throws an unchecked exception, and so does breaking a check whose level is
+ * owner, e.g. {@code player.}) throws a {@link SymbolException}, and so does breaking a check whose level is
  * {@link ErrorReactionLevel#THROW}.
  * </p>
  *
