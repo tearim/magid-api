@@ -44,7 +44,8 @@ public interface StoryObjectModel {
     boolean hasFragment(String name);
 
     /**
-     * Narrates a line of plain text, without fields. Symbols in braces ({@code {player.gold}}) are substituted.
+     * Narrates a line of plain text, without fields. When the engine's expressions are enabled
+     * ({@code magid.expressions}), symbols in braces ({@code {player.gold}}) are substituted and expressions evaluated.
      *
      * @param text the text
      */
@@ -53,7 +54,7 @@ public interface StoryObjectModel {
     /**
      * Narrates a line made of fields, which the engine sends to the client as one JSON object. {@code text} holds
      * the line's text; other keys are what the clients understand, e.g. {@code text-class} and the styling keys.
-     * Symbols in braces are substituted in text values only.
+     * Substitution works as in {@link #narrate(String)}, in text values only.
      *
      * @param narration the fields: names and values ({@link NarrationValue}, or any other
      *                  {@link BasicTypedValue}, e.g. a recalled reverie)
