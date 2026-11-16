@@ -13,7 +13,7 @@ import java.util.Objects;
 public record FloatReverie(Float value) implements Reverie<Float> {
 
     /** The type name. Saves store it: never change it, or old saves no longer restore. */
-    public static final String TYPE = "float";
+    public static final String TYPE = FLOAT;
 
     /**
      * Creates the reverie.

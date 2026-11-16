@@ -12,7 +12,7 @@ import java.util.Objects;
 public record IntegerReverie(Integer value) implements Reverie<Integer> {
 
     /** The type name. Saves store it: never change it, or old saves no longer restore. */
-    public static final String TYPE = "integer";
+    public static final String TYPE = INTEGER;
 
     /**
      * Creates the reverie.

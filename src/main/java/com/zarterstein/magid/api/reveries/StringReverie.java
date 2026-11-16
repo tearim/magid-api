@@ -12,7 +12,7 @@ import java.util.Objects;
 public record StringReverie(String value) implements Reverie<String> {
 
     /** The type name. Saves store it: never change it, or old saves no longer restore. */
-    public static final String TYPE = "string";
+    public static final String TYPE = STRING;
 
     /**
      * Creates the reverie.

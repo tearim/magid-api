@@ -1,5 +1,7 @@
 package com.zarterstein.magid.api.reveries;
 
+import com.zarterstein.magid.api.values.BasicTypedValue;
+
 /**
  * A typed value held by a story: a variable or constant, an actor's memory, an auxiliary attribute.
  * <p>
@@ -8,32 +10,16 @@ package com.zarterstein.magid.api.reveries;
  * through the engine's symbols, which check types and constants.
  * </p>
  * <p>
- * The set of types is open: {@link #getType()} names it, and new types may be added in later versions, so a
- * {@code switch} over reveries needs a {@code default} branch. The built-in types are {@link BooleanReverie},
- * {@link IntegerReverie}, {@link FloatReverie} and {@link StringReverie}. There is no double on purpose: Magid is a
- * story engine, not a calculator.
+ * The value and its type name come from {@link BasicTypedValue}, which also holds the rules on types (an open set, no
+ * double). The built-in reveries are {@link BooleanReverie}, {@link IntegerReverie}, {@link FloatReverie} and
+ * {@link StringReverie}; saves store their type names, so those never change.
  * </p>
  *
  * @param <T> the Java type of the value
  * @author Mark-Marion Gondelman (Orchestration)
  * @author Code: Claude Code (agentic implementation)
  */
-public interface Reverie<T> {
-
-    /**
-     * The value.
-     *
-     * @return the value; never {@code null}
-     */
-    T get();
-
-    /**
-     * The type's name.
-     *
-     * @return the type name, e.g. {@value IntegerReverie#TYPE}. Saves store it, so the names of the built-in types
-     * never change.
-     */
-    String getType();
+public interface Reverie<T> extends BasicTypedValue<T> {
 
     /**
      * Wraps a boolean.

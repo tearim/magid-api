@@ -12,7 +12,7 @@ import java.util.Objects;
 public record BooleanReverie(Boolean value) implements Reverie<Boolean> {
 
     /** The type name. Saves store it: never change it, or old saves no longer restore. */
-    public static final String TYPE = "boolean";
+    public static final String TYPE = BOOLEAN;
 
     /**
      * Creates the reverie.

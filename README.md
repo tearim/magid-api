@@ -15,7 +15,9 @@ two different tagpacks work without engine changes.
 
 Available so far: the tag annotations and semantic types (`…api.tags`), the morpher contract (`…api.morphers`),
 the reveries, Magid's typed values (`…api.reveries`), the symbols (`…api.symbols`: `SymbolRef`, `SymbolPinax`,
-`ErrorReactionLevel`) and the actors (`…api.actors.ActorInterface`).
+`ErrorReactionLevel`), the actors (`…api.actors.ActorInterface`), the Story Object Model's interfaces
+(`…api.som`, step 6, no engine implementation yet) and `BasicTypedValue` (`…api.values`), the base of reveries and
+narration values.
 
 ## What it contains (when complete)
 
