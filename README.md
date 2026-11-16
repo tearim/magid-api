@@ -13,14 +13,15 @@ never on the engine.
 from the engine step by step. Until 1.0, every minor version (0.1, 0.2, …) may break compatibility; 1.0 is frozen once
 two different tagpacks work without engine changes.
 
-Available so far: the tag annotations and semantic types (`…api.tags`), the morpher contract (`…api.morphers`) and
-the reveries, Magid's typed values (`…api.reveries`).
+Available so far: the tag annotations and semantic types (`…api.tags`), the morpher contract (`…api.morphers`),
+the reveries, Magid's typed values (`…api.reveries`), the symbols (`…api.symbols`: `SymbolRef`, `SymbolPinax`,
+`ErrorReactionLevel`) and the actors (`…api.actors.ActorInterface`).
 
 ## What it contains (when complete)
 
 - the tag annotations (`@MagidXmlTag`) and semantic types;
 - the tag contract: a pack tag, the element it reads, the context it runs in, its result;
-- the story's symbols as a pack sees them (`SymbolPinax`), symbol references, read-only actor views;
+- the story's symbols as a pack sees them (`SymbolPinax`), symbol references, actors (whose writes go through the pinax);
 - the Story Object Model (scenes, choices, descriptions, fragments) a pack may change;
 - pack configuration and pack state that is saved with the session;
 - the exceptions a pack may throw.

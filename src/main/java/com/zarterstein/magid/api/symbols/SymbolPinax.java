@@ -42,8 +42,9 @@ public interface SymbolPinax {
     Optional<Reverie<?>> recall(String symbol);
 
     /**
-     * Sets an existing symbol (or creates it, if the story allows undeclared symbols). The value is converted to the
-     * closest type, as for every MagidML tag: {@code "42"} becomes an integer.
+     * Sets an existing symbol (or creates it, if the story allows undeclared symbols). A plain value is converted to
+     * the closest type, as for every MagidML tag: {@code "42"} becomes an integer. A {@link Reverie} keeps its type:
+     * {@code Reverie.of("007")} stays a string.
      *
      * @param symbol the symbol
      * @param value  the new value
@@ -51,7 +52,7 @@ public interface SymbolPinax {
     void set(String symbol, Object value);
 
     /**
-     * Declares a symbol with its first value, converted to the closest type as in {@link #set}.
+     * Declares a symbol with its first value, converted (or kept, for a reverie) as in {@link #set}.
      *
      * @param symbol the symbol; {@code #name} declares a constant
      * @param value  the initial value
