@@ -1,10 +1,29 @@
 package com.zarterstein.magid.api.som;
 
+import com.zarterstein.magid.api.tags.TagResult;
 import com.zarterstein.magid.api.values.BasicTypedValue;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+/*
+ *          SOM, Story Object Model.   Сом (som), Russian for "catfish".
+ *
+ *                            ,
+ *                           /|
+ *               _.-----..../ |_.------.._
+ *           _.-'   (o)                     `-._               ,--.
+ *     ___.-'                                   `-.__       ,-'   /
+ *    <___   ======                                  `-----<     (
+ *        `-.__                                      _.---- `-.   \
+ *       /  \  `--..___                  ___...--''          `--'
+ *      /    \         ``---...___...--''
+ *    _/      \_                                    ~  o
+ *   /          \        it lies at the bottom   ~   O    ~
+ *                       of every story,          o   ~
+ *                       whiskers in the scenes.
+ */
 
 /**
  * The Story Object Model (SOM) of one session: the story's runtime structure (scenes, their descriptions and
@@ -60,4 +79,19 @@ public interface StoryObjectModel {
      *                  {@link BasicTypedValue}, e.g. a recalled reverie)
      */
     void narrate(Map<String, ? extends BasicTypedValue<?>> narration);
+
+    /**
+     * Runs a fragment, as {@code <use-fragment>} does, and returns what it did. A fragment that jumps, stays, breaks
+     * or ends the story doesn't do so itself: its outcome comes back in the result, and the tag decides whether to
+     * return it as its own (as {@code <use-fragment>} does) or to ignore it.
+     * <pre>{@code
+     * TagResult done = som.executeFragment("search-room");
+     * return done;                                   // a jump inside the fragment jumps
+     * }</pre>
+     *
+     * @param name the fragment's name
+     * @return the fragment's outcome; for a break or a stay, its text is the message the fragment gave
+     * @throws IllegalArgumentException if the story has no fragment with that name (see {@link #hasFragment(String)})
+     */
+    TagResult executeFragment(String name);
 }
