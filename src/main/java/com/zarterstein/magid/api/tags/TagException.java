@@ -1,7 +1,5 @@
 package com.zarterstein.magid.api.tags;
 
-import java.util.Optional;
-
 /**
  * A tag can't run: the author wrote it wrong, or it was used where it can't work. The engine stops the story's action
  * and reports the message to the author, so the message should say what to change in the story.
@@ -34,7 +32,7 @@ public class TagException extends RuntimeException {
 
     /**
      * @param message  what is wrong, for the author
-     * @param position where; {@code null} if unknown
+     * @param position where; {@link SourcePosition#UNKNOWN} (or {@code null}) if unknown
      */
     public TagException(String message, SourcePosition position) {
         this(message, position, null);
@@ -42,18 +40,19 @@ public class TagException extends RuntimeException {
 
     /**
      * @param message  what is wrong, for the author
-     * @param position where; {@code null} if unknown
+     * @param position where; {@link SourcePosition#UNKNOWN} (or {@code null}) if unknown
      * @param cause    the exception that made the tag fail; {@code null} if none
      */
     public TagException(String message, SourcePosition position, Throwable cause) {
-        super(position == null ? message : message + " (" + position.describe() + ")", cause);
-        this.position = position;
+        super(position == null || !position.isKnown() ? message : message + " (" + position.describe() + ")", cause);
+        this.position = position == null ? SourcePosition.UNKNOWN : position;
     }
 
     /**
-     * @return where the error is, if known; {@link #getMessage()} already ends with it
+     * @return where the error is; {@link SourcePosition#UNKNOWN} if unknown. {@link #getMessage()} already ends with a
+     *         known position
      */
-    public Optional<SourcePosition> position() {
-        return Optional.ofNullable(position);
+    public SourcePosition position() {
+        return position;
     }
 }

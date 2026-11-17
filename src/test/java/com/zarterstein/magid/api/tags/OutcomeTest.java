@@ -74,25 +74,39 @@ class OutcomeTest {
         assertThrows(NullPointerException.class, () -> new Outcome(null, null, null));
     }
 
-    // ─── TagResult ──────────────────────────────────────────────────────────
+    // ─── messages ───────────────────────────────────────────────────────────
 
     @Test
-    void textResultProceeds() {
-        assertEquals(new TagResult("The Duke nods.", Outcome.proceed()), TagResult.text("The Duke nods."));
+    void stayCarriesItsMessage() {
+        assertEquals("Try again.", Outcome.stay("Try again.").addition());
     }
 
     @Test
-    void outcomeResultHasNoText() {
-        assertEquals("", TagResult.of(Outcome.jump("castle")).text());
+    void breakCarriesItsMessage() {
+        assertEquals("Enough.", Outcome.doBreak("Enough.").addition());
     }
 
     @Test
-    void nullTextBecomesEmpty() {
-        assertEquals("", new TagResult(null, Outcome.proceed()).text());
+    void stayWithoutOnEntryCarriesItsMessage() {
+        assertEquals("Again.", Outcome.stayWithoutOnEntry("Again.").addition());
     }
 
     @Test
-    void nullOutcomeIsRejected() {
-        assertThrows(NullPointerException.class, () -> new TagResult("x", null));
+    void noMessageIsEmpty() {
+        assertAll(
+                () -> assertEquals(Outcome.stay(""), Outcome.stay()),
+                () -> assertEquals(Outcome.doBreak(""), Outcome.doBreak()),
+                () -> assertEquals(Outcome.stayWithoutOnEntry(""), Outcome.stayWithoutOnEntry()),
+                () -> assertEquals("", Outcome.stay(null).addition()));
+    }
+
+    @Test
+    void stayTakesNoScene() {
+        assertThrows(IllegalArgumentException.class, () -> new Outcome(Outcome.Type.STAY, "hall", "x"));
+    }
+
+    @Test
+    void proceedTakesNoMessage() {
+        assertThrows(IllegalArgumentException.class, () -> new Outcome(Outcome.Type.PROCEED, null, "x"));
     }
 }

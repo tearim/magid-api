@@ -21,7 +21,7 @@ public class TagContextException extends TagException {
 
     /**
      * @param message  what is wrong, for the author
-     * @param position where; {@code null} if unknown
+     * @param position where; {@link SourcePosition#UNKNOWN} (or {@code null}) if unknown
      */
     public TagContextException(String message, SourcePosition position) {
         super(message, position);

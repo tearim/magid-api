@@ -44,6 +44,19 @@ class TagExceptionTest {
         assertThrows(NullPointerException.class, () -> new SourcePosition("dice.xml", null, 1, 1));
     }
 
+    @Test
+    void unknownPositionIsNotKnown() {
+        assertAll(
+                () -> assertFalse(SourcePosition.UNKNOWN.isKnown()),
+                () -> assertTrue(AT.isKnown()),
+                () -> assertEquals("unknown position", SourcePosition.UNKNOWN.describe()));
+    }
+
+    @Test
+    void onlyBothMinusOneMeanUnknown() {
+        assertThrows(IllegalArgumentException.class, () -> new SourcePosition("dice.xml", "XML", -1, 4));
+    }
+
     // ─── TagException ───────────────────────────────────────────────────────
 
     @Test
@@ -51,7 +64,7 @@ class TagExceptionTest {
         TagException e = new TagException("Bad roll");
         assertAll(
                 () -> assertEquals("Bad roll", e.getMessage()),
-                () -> assertEquals(Optional.empty(), e.position()));
+                () -> assertEquals(SourcePosition.UNKNOWN, e.position()));
     }
 
     @Test
@@ -59,7 +72,7 @@ class TagExceptionTest {
         TagException e = new TagException("Bad roll", AT);
         assertAll(
                 () -> assertEquals("Bad roll (XML source (dice.xml): around line 12, column 4)", e.getMessage()),
-                () -> assertEquals(Optional.of(AT), e.position()));
+                () -> assertEquals(AT, e.position()));
     }
 
     @Test
@@ -67,7 +80,15 @@ class TagExceptionTest {
         TagException e = new TagException("Bad roll", null);
         assertAll(
                 () -> assertEquals("Bad roll", e.getMessage()),
-                () -> assertEquals(Optional.empty(), e.position()));
+                () -> assertEquals(SourcePosition.UNKNOWN, e.position()));
+    }
+
+    @Test
+    void unknownPositionAddsNothingToTheMessage() {
+        TagException e = new TagException("Bad roll", SourcePosition.UNKNOWN);
+        assertAll(
+                () -> assertEquals("Bad roll", e.getMessage()),
+                () -> assertEquals(SourcePosition.UNKNOWN, e.position()));
     }
 
     @Test
@@ -88,7 +109,7 @@ class TagExceptionTest {
         TagAttributeException e = new TagAttributeException("Bad sides", "sides", AT);
         assertAll(
                 () -> assertEquals(Optional.of("sides"), e.attribute()),
-                () -> assertEquals(Optional.of(AT), e.position()),
+                () -> assertEquals(AT, e.position()),
                 () -> assertTrue(e.getMessage().endsWith("around line 12, column 4)"), e.getMessage()));
     }
 
@@ -97,7 +118,7 @@ class TagExceptionTest {
         TagAttributeException e = new TagAttributeException("Bad sides", AT);
         assertAll(
                 () -> assertEquals(Optional.empty(), e.attribute()),
-                () -> assertEquals(Optional.of(AT), e.position()));
+                () -> assertEquals(AT, e.position()));
     }
 
     @Test
@@ -105,6 +126,6 @@ class TagExceptionTest {
         TagContextException e = new TagContextException("<card> must be inside a <deck>", AT);
         assertAll(
                 () -> assertInstanceOf(TagException.class, e),
-                () -> assertEquals(Optional.of(AT), e.position()));
+                () -> assertEquals(AT, e.position()));
     }
 }

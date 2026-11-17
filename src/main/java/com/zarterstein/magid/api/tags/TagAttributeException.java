@@ -27,7 +27,8 @@ public class TagAttributeException extends TagException {
 
     /**
      * @param message  what is wrong, for the author
-     * @param position where (the element's position, as the attribute's name isn't given); {@code null} if unknown
+     * @param position where (the element's position, as the attribute's name isn't given);
+     *                 {@link SourcePosition#UNKNOWN} (or {@code null}) if unknown
      */
     public TagAttributeException(String message, SourcePosition position) {
         this(message, null, position);
@@ -36,7 +37,8 @@ public class TagAttributeException extends TagException {
     /**
      * @param message   what is wrong, for the author
      * @param attribute the attribute's name; {@code null} if not given
-     * @param position  where: the attribute's position if it is present, else its element's; {@code null} if unknown
+     * @param position  where: the attribute's position if it is present, else its element's;
+     *                  {@link SourcePosition#UNKNOWN} (or {@code null}) if unknown
      */
     public TagAttributeException(String message, String attribute, SourcePosition position) {
         super(message, position);

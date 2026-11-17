@@ -4,8 +4,9 @@ import java.util.Objects;
 
 /**
  * What the story does after a tag has run: go on, leave the current block, or move the reader elsewhere. A tag
- * returns it in its {@link TagResult}; it never moves the reader itself, because the engine must first stop the
- * running action (a jump made from inside a tag would run the target scene in the middle of the current action).
+ * returns it from {@link MagidTagInterface#execute()}; it never moves the reader itself, because the engine must
+ * first stop the running action (a jump made from inside a tag would run the target scene in the middle of the
+ * current action).
  * <p>
  * Each {@link Type} is what a core tag returns, so a pack's outcome is handled exactly like the core tag's:
  * </p>
@@ -13,21 +14,30 @@ import java.util.Objects;
  *   <caption>Outcomes and their core tags</caption>
  *   <tr><th>Factory</th><th>Like</th><th>{@link #sceneId()}</th><th>{@link #addition()}</th></tr>
  *   <tr><td>{@link #proceed()}</td><td>most tags</td><td>—</td><td>—</td></tr>
- *   <tr><td>{@link #doBreak()}</td><td>{@code <break>}</td><td>—</td><td>—</td></tr>
+ *   <tr><td>{@link #doBreak(String)}</td><td>{@code <break>}</td><td>—</td><td>the message</td></tr>
  *   <tr><td>{@link #jump(String)}</td><td>{@code <jump scene="…">}</td><td>the scene</td><td>—</td></tr>
  *   <tr><td>{@link #act(String, String)}</td><td>{@code <jump>} to a choice</td><td>the scene</td><td>the choice's
  *       trigger</td></tr>
- *   <tr><td>{@link #stay()}</td><td>{@code <stay>}</td><td>—</td><td>—</td></tr>
- *   <tr><td>{@link #stayWithoutOnEntry()}</td><td>{@code <stay no-entry-action="true">}</td><td>—</td><td>—</td></tr>
+ *   <tr><td>{@link #stay(String)}</td><td>{@code <stay message="…">}</td><td>—</td><td>the message</td></tr>
+ *   <tr><td>{@link #stayWithoutOnEntry(String)}</td><td>{@code <stay no-entry-action="true">}</td><td>—</td>
+ *       <td>the message</td></tr>
  *   <tr><td>{@link #end(String)}, {@link #win(String)}, {@link #die(String)}</td><td>{@code <end>}, {@code <win>},
  *       {@code <die>}</td><td>—</td><td>the ending's name</td></tr>
  * </table>
- * The set of types is closed: the engine must understand every outcome, so packs can't add their own.
+ * The set of types is closed: the engine must understand every outcome, so packs can't add their own. A message
+ * ({@link Type#BREAK}, {@link Type#STAY}, {@link Type#STAY_WITHOUT_ON_ENTRY}) is shown to the reader, as
+ * {@code <stay message="…">} shows its own; other text a tag narrates itself.
+ * <pre>{@code
+ * return Outcome.jump("castle");
+ * return Outcome.stay("The door is locked. Try again.");
+ * }</pre>
  *
  * @param type     what happens
  * @param sceneId  the target scene of {@link Type#JUMP} and {@link Type#ACT}; {@code null} otherwise
- * @param addition the choice's trigger for {@link Type#ACT}, the ending's name for {@link Type#END},
- *                 {@link Type#WIN} and {@link Type#DIE} ({@code ""} for the generic ending); {@code null} otherwise
+ * @param addition the choice's trigger for {@link Type#ACT}; the ending's name for {@link Type#END},
+ *                 {@link Type#WIN} and {@link Type#DIE} ({@code ""} for the generic ending); the message for
+ *                 {@link Type#BREAK}, {@link Type#STAY} and {@link Type#STAY_WITHOUT_ON_ENTRY} ({@code ""} for none);
+ *                 {@code null} for {@link Type#PROCEED} and {@link Type#JUMP}
  * @author Mark-Marion Gondelman (Creator)
  * @author Refactoring: Claude Code (agentic refactoring)
  * @author JavaDocs: Claude Code (Model: claude-opus-5-5)
@@ -73,11 +83,11 @@ public record Outcome(Type type, String sceneId, String addition) {
                 require(present(sceneId), type, "a scene");
                 require(present(addition), type, "a choice's trigger");
             }
-            case END, WIN, DIE -> {
+            case END, WIN, DIE, BREAK, STAY, STAY_WITHOUT_ON_ENTRY -> {
                 require(sceneId == null, type, "no scene");
                 if ( addition == null ) addition = "";
             }
-            case PROCEED, BREAK, STAY, STAY_WITHOUT_ON_ENTRY -> {
+            case PROCEED -> {
                 require(sceneId == null && addition == null, type, "neither a scene nor an addition");
             }
         }
@@ -94,8 +104,14 @@ public record Outcome(Type type, String sceneId, String addition) {
     /** @return go on with the next tag */
     public static Outcome proceed() { return new Outcome(Type.PROCEED, null, null); }
 
-    /** @return leave the current block or loop, like {@code <break>} */
-    public static Outcome doBreak() { return new Outcome(Type.BREAK, null, null); }
+    /** @return leave the current block or loop, like {@code <break>}, with no message */
+    public static Outcome doBreak() { return doBreak(""); }
+
+    /**
+     * @param message shown to the reader; {@code null} or {@code ""} for none
+     * @return leave the current block or loop, like {@code <break>}
+     */
+    public static Outcome doBreak(String message) { return new Outcome(Type.BREAK, null, message); }
 
     /**
      * @param sceneId the scene to go to
@@ -110,11 +126,25 @@ public record Outcome(Type type, String sceneId, String addition) {
      */
     public static Outcome act(String sceneId, String choice) { return new Outcome(Type.ACT, sceneId, choice); }
 
-    /** @return enter the current scene again, running its on-entry, like {@code <stay>} */
-    public static Outcome stay() { return new Outcome(Type.STAY, null, null); }
+    /** @return enter the current scene again, running its on-entry, like {@code <stay>}, with no message */
+    public static Outcome stay() { return stay(""); }
 
-    /** @return enter the current scene again without its on-entry, like {@code <stay no-entry-action="true">} */
-    public static Outcome stayWithoutOnEntry() { return new Outcome(Type.STAY_WITHOUT_ON_ENTRY, null, null); }
+    /**
+     * @param message shown to the reader; {@code null} or {@code ""} for none
+     * @return enter the current scene again, running its on-entry, like {@code <stay message="…">}
+     */
+    public static Outcome stay(String message) { return new Outcome(Type.STAY, null, message); }
+
+    /** @return enter the current scene again without its on-entry, with no message */
+    public static Outcome stayWithoutOnEntry() { return stayWithoutOnEntry(""); }
+
+    /**
+     * @param message shown to the reader; {@code null} or {@code ""} for none
+     * @return enter the current scene again without its on-entry, like {@code <stay no-entry-action="true">}
+     */
+    public static Outcome stayWithoutOnEntry(String message) {
+        return new Outcome(Type.STAY_WITHOUT_ON_ENTRY, null, message);
+    }
 
     /**
      * @param ending the ending's name; {@code null} or {@code ""} for the story's generic ending

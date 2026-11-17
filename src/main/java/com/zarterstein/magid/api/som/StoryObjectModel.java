@@ -1,6 +1,6 @@
 package com.zarterstein.magid.api.som;
 
-import com.zarterstein.magid.api.tags.TagResult;
+import com.zarterstein.magid.api.tags.Outcome;
 import com.zarterstein.magid.api.values.BasicTypedValue;
 
 import java.util.List;
@@ -85,13 +85,13 @@ public interface StoryObjectModel {
      * or ends the story doesn't do so itself: its outcome comes back in the result, and the tag decides whether to
      * return it as its own (as {@code <use-fragment>} does) or to ignore it.
      * <pre>{@code
-     * TagResult done = som.executeFragment("search-room");
+     * Outcome done = som.executeFragment("search-room");
      * return done;                                   // a jump inside the fragment jumps
      * }</pre>
      *
      * @param name the fragment's name
-     * @return the fragment's outcome; for a break or a stay, its text is the message the fragment gave
+     * @return the fragment's outcome; a break or a stay carries the message the fragment gave
      * @throws IllegalArgumentException if the story has no fragment with that name (see {@link #hasFragment(String)})
      */
-    TagResult executeFragment(String name);
+    Outcome executeFragment(String name);
 }
