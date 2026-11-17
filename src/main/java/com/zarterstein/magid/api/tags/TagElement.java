@@ -53,13 +53,12 @@ public non-sealed interface TagElement extends TagNode {
     Set<String> attributeNames();
 
     /**
-     * An attribute as a yes/no setting, read raw (not evaluated): {@code yes}, {@code true}, {@code 1} or
-     * {@code enabled}, in any case, mean yes, like every Magid yes/no value. For a condition that is evaluated first,
-     * use {@link MagidTagInterface#isTrue(String)}.
+     * An attribute as a boolean, read raw (not evaluated): {@code true} (any case) is true, anything else false, as
+     * {@link MagidTagInterface#isTrue(String)} reads the evaluated value.
      *
      * @param name     an attribute's name
      * @param fallback the answer when the attribute is missing
-     * @return whether the attribute says yes
+     * @return whether the attribute is {@code true}
      */
     boolean isTrue(String name, boolean fallback);
 

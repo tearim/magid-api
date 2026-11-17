@@ -2,7 +2,6 @@ package com.zarterstein.magid.api.tags;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -108,7 +107,7 @@ class TagExceptionTest {
     void attributeExceptionNamesTheAttribute() {
         TagAttributeException e = new TagAttributeException("Bad sides", "sides", AT);
         assertAll(
-                () -> assertEquals(Optional.of("sides"), e.attribute()),
+                () -> assertEquals("sides", e.attribute()),
                 () -> assertEquals(AT, e.position()),
                 () -> assertTrue(e.getMessage().endsWith("around line 12, column 4)"), e.getMessage()));
     }
@@ -117,7 +116,7 @@ class TagExceptionTest {
     void attributeExceptionWithoutAttributeName() {
         TagAttributeException e = new TagAttributeException("Bad sides", AT);
         assertAll(
-                () -> assertEquals(Optional.empty(), e.attribute()),
+                () -> assertEquals("", e.attribute()),
                 () -> assertEquals(AT, e.position()));
     }
 

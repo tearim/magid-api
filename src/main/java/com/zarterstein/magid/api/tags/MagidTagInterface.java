@@ -8,8 +8,8 @@ import java.util.Map;
 /**
  * A MagidML tag, as the engine calls it: every tag that runs (core tags and tagpack tags alike; only the structural
  * tags such as {@code <scene>} are handled by the loader instead). Extend {@link MagidTag}, which implements all of
- * this over the {@link TagElement} and {@link TagContext} the engine binds; a tag then writes only {@link #process()}
- * and, if it acts, {@link #execute()}.
+ * this over the {@link TagElement} and {@link TagContext} the engine binds; a tag then writes only
+ * {@link #process(TagElement, String)} and, if it acts, {@link #execute()}.
  * <p>
  * <b>Lifecycle.</b> The engine creates a new instance for every use (public no-argument constructor), calls
  * {@link #bind(TagElement, TagContext)}, then <i>either</i> {@link #process()} (inside a narration block such as
@@ -25,8 +25,8 @@ import java.util.Map;
  * <pre>{@code
  * @MagidXmlTag(target = "greet", types = {SemanticType.TEXT_GENERATOR})
  * public class GreetTag extends MagidTag {
- *     public Map<String, String> process() {
- *         return TagProcessorResult.mapWithTextOnly("Hello, " + getAttributeValueAsString("name") + "!");
+ *     public Map<String, String> process(TagElement element, String context) {
+ *         return TagProcessorResult.mapWithTextOnly("Hello, " + getAttributeAsString("name") + "!");
  *     }
  *     public boolean newLine()    { return false; }
  *     public boolean zeroLength() { return false; }
@@ -58,6 +58,16 @@ public interface MagidTagInterface {
      * @return the tag's result
      */
     Map<String, String> process();
+
+    /**
+     * {@link #process()} with the element and the block name given explicitly, as the engine's own tags write it.
+     * {@link MagidTag#process()} calls it with the bound element and {@link #blockName()}.
+     *
+     * @param element the tag's element
+     * @param context the block the tag stands in ({@link #blockName()}); {@code ""} or {@code null} if none
+     * @return the tag's result
+     */
+    Map<String, String> process(TagElement element, String context);
 
     /**
      * Inside an action: acts, and says what happens next. Text is narrated with {@link #narrate(String)} (and its
@@ -108,7 +118,8 @@ public interface MagidTagInterface {
     String blockName();
 
     /**
-     * An attribute's value, with expressions evaluated when the attribute has any (and expressions are enabled).
+     * An attribute's value; evaluated if the tag's attributes are dynamic ({@link #isDynamic()}) and expressions are
+     * enabled, raw otherwise.
      *
      * @param name the attribute's name
      * @return the value; {@code ""} if the attribute is missing
@@ -119,12 +130,11 @@ public interface MagidTagInterface {
      * @param name the attribute's name
      * @return {@link #getAttributeValue(String)} as a string; {@code ""} if the attribute is missing
      */
-    String getAttributeValueAsString(String name);
+    String getAttributeAsString(String name);
 
     /**
-     * An attribute as a condition: evaluated, then read as a boolean ({@code true}/{@code false}, any case).
-     * For a plain yes/no setting that isn't evaluated ({@code required="yes"}), use
-     * {@link TagElement#isTrue(String, boolean)}.
+     * An attribute as a condition: evaluated, then read as a boolean ({@code true}/{@code false}, any case). The raw,
+     * unevaluated reading is {@link TagElement#isTrue(String, boolean)}.
      *
      * @param ofAttribute the attribute's name
      * @return {@code true} if the evaluated value is {@code true}; {@code false} if it is missing or anything else
@@ -133,7 +143,8 @@ public interface MagidTagInterface {
 
     /**
      * Whether the tag's output can change between two uses: the tag is a {@link SemanticType#DYNAMIC_GENERATOR}, or
-     * its attributes or text contain expressions.
+     * its attributes or text contain expressions. Determined once per instance, so a static tag never pays for the
+     * evaluator.
      *
      * @return {@code true} if the tag is dynamic
      */

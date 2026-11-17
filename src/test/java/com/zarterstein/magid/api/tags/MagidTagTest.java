@@ -29,8 +29,8 @@ class MagidTagTest {
     @MagidXmlTag(target = "greet, hello", types = {SemanticType.TEXT_GENERATOR})
     static class GreetTag extends MagidTag {
         @Override
-        public Map<String, String> process() {
-            return TagProcessorResult.mapWithTextOnly("Hello, " + getAttributeValueAsString("to") + "!");
+        public Map<String, String> process(TagElement element, String context) {
+            return TagProcessorResult.mapWithTextOnly("Hello, " + getAttributeAsString("to") + "!");
         }
         @Override public boolean newLine() { return false; }
         @Override public boolean zeroLength() { return false; }
@@ -51,6 +51,7 @@ class MagidTagTest {
     }
 
     private final List<Object> narrated = new ArrayList<>();
+    private int evaluations = 0;
     private TagContext context;
 
     @BeforeEach
@@ -63,7 +64,7 @@ class MagidTagTest {
         EvaluatorInterface evaluator = new EvaluatorInterface() {
             public boolean isEnabled() { return true; }
             public boolean hasExpressions(String text) { return text.contains("{"); }
-            public String evaluate(String text) { return text.replace("{name}", "Ada"); }
+            public String evaluate(String text) { evaluations++; return text.replace("{name}", "Ada"); }
             public Object run(String script) { return null; }
         };
         context = new TagContext() {
@@ -96,8 +97,30 @@ class MagidTagTest {
     }
 
     @Test
+    void staticTagNeverCallsTheEvaluator() {
+        GreetTag tag = greet(Map.of("to", "Bob", "mood", "calm"), "Hi");
+        tag.getAttributeValue("to");
+        tag.getAttributeValue("mood");
+        assertEquals(0, evaluations);
+    }
+
+    @Test
+    void dynamicTagEvaluatesAllItsAttributes() {
+        GreetTag tag = greet(Map.of("to", "Bob", "mood", "{name}"), "");
+        assertAll(
+                () -> assertEquals("Bob", tag.getAttributeValue("to")),
+                () -> assertEquals("Ada", tag.getAttributeValue("mood")),
+                () -> assertEquals(2, evaluations));
+    }
+
+    @Test
+    void processWithoutArgumentsUsesTheBoundElementAndBlock() {
+        assertEquals("Hello, Ada!", greet(Map.of("to", "{name}"), "").process().get("text"));
+    }
+
+    @Test
     void missingAttributeIsEmpty() {
-        assertEquals("", greet(Map.of(), "").getAttributeValueAsString("to"));
+        assertEquals("", greet(Map.of(), "").getAttributeAsString("to"));
     }
 
     @Test

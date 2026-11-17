@@ -1,7 +1,5 @@
 package com.zarterstein.magid.api.tags;
 
-import java.util.Optional;
-
 /**
  * A tag's attribute is missing, or its value is wrong.
  *
@@ -36,19 +34,19 @@ public class TagAttributeException extends TagException {
 
     /**
      * @param message   what is wrong, for the author
-     * @param attribute the attribute's name; {@code null} if not given
+     * @param attribute the attribute's name; {@code null} or {@code ""} if not given
      * @param position  where: the attribute's position if it is present, else its element's;
      *                  {@link SourcePosition#UNKNOWN} (or {@code null}) if unknown
      */
     public TagAttributeException(String message, String attribute, SourcePosition position) {
         super(message, position);
-        this.attribute = attribute;
+        this.attribute = attribute == null ? "" : attribute;
     }
 
     /**
-     * @return the name of the missing or wrong attribute, if given
+     * @return the name of the missing or wrong attribute; {@code ""} if not given
      */
-    public Optional<String> attribute() {
-        return Optional.ofNullable(attribute);
+    public String attribute() {
+        return attribute;
     }
 }
