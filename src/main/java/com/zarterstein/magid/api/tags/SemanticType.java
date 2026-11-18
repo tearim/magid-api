@@ -10,7 +10,18 @@ package com.zarterstein.magid.api.tags;
  */
 public enum SemanticType {
 
-    STRUCTURAL, // means it is not parsed in the tag's body, executor/loader do.
+    /**
+     * The engine reads the element itself: the loader while it builds the story ({@code <actors>}, {@code <include>},
+     * {@code <extend>}), or the executor while it runs it (a scene's {@code <description>} and {@code <short>}). The
+     * tag's class does no work of its own, beyond checking where it stands; it exists so the element has a registered
+     * name and types, e.g. {@link #NARRATION_BLOCK}, which tells an {@code <if>} inside a {@code <description>} that
+     * it is in narration.
+     * <p>
+     * The engine's own tags only: the loader knows no tagpack's elements, so a tagpack that declares this type is
+     * refused when the server starts.
+     * </p>
+     */
+    STRUCTURAL,
     /** No particular type; the default for tags registered without types. */
     GENERIC,
     /**
