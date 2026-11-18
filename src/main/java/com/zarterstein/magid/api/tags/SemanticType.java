@@ -9,6 +9,8 @@ package com.zarterstein.magid.api.tags;
  * @see MagidXmlTag
  */
 public enum SemanticType {
+
+    STRUCTURAL, // means it is not parsed in the tag's body, executor/loader do.
     /** No particular type; the default for tags registered without types. */
     GENERIC,
     /**
