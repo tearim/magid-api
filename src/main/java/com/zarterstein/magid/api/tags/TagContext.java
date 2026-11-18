@@ -1,6 +1,7 @@
 package com.zarterstein.magid.api.tags;
 
 import com.zarterstein.magid.api.expressions.EvaluatorInterface;
+import com.zarterstein.magid.api.packs.PluginPropsInterface;
 import com.zarterstein.magid.api.som.StoryObjectModel;
 import com.zarterstein.magid.api.symbols.SymbolPinax;
 
@@ -57,4 +58,6 @@ public interface TagContext {
      * @return a logger for the tag's pack
      */
     Logger logger();
+
+    PluginPropsInterface pluginProps();
 }

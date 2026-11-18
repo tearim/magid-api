@@ -1,6 +1,7 @@
 package com.zarterstein.magid.api.tags;
 
 import com.zarterstein.magid.api.expressions.EvaluatorInterface;
+import com.zarterstein.magid.api.packs.PluginPropsInterface;
 import com.zarterstein.magid.api.som.NarrationValue;
 import com.zarterstein.magid.api.som.StoryObjectModel;
 import com.zarterstein.magid.api.symbols.SymbolPinax;
@@ -75,6 +76,7 @@ class MagidTagTest {
             public Outcome executeBlock(List<TagNode> nodes) { return Outcome.proceed(); }
             public TagProcessorResultInterface renderBlock(List<TagNode> nodes) { return TagProcessorResult.empty(); }
             public Logger logger() { return Logger.getLogger("test"); }
+            public PluginPropsInterface pluginProps() { return null; }
         };
     }
 
