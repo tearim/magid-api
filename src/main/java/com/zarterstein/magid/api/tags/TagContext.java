@@ -59,5 +59,13 @@ public interface TagContext {
      */
     Logger logger();
 
-    PluginPropsInterface pluginProps();
+    /**
+     * The settings of the tag's own pack ({@link PluginPropsInterface}). The engine gives each tag its pack's
+     * settings; this default, for contexts that have none (a test's fake), gives every key its fallback.
+     *
+     * @return the pack's settings; never {@code null}
+     */
+    default PluginPropsInterface pluginProps() {
+        return PluginPropsInterface.NONE;
+    }
 }
