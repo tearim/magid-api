@@ -44,9 +44,9 @@ class SymbolRefTest {
     }
 
     @Test
-    @DisplayName("Only the first / separates: ^lore/places/castle is places/castle in lore")
+    @DisplayName("References are one level: ^lore/places/castle is an error")
     void referenceKeyWithSlash() {
-        assertEquals(new SymbolRef(SymbolRef.Type.REFERENCE, "lore", "places/castle"), SymbolRef.of("^lore/places/castle"));
+        assertEquals(new SymbolRef(SymbolRef.Type.ERROR, "", "^lore/places/castle"), SymbolRef.of("^lore/places/castle"));
     }
 
     @Test

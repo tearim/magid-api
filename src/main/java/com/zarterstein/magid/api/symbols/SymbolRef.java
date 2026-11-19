@@ -28,7 +28,8 @@ package com.zarterstein.magid.api.symbols;
  * <p>
  * A reference ({@code ^name}, {@code ^category/name}) is a read-only symbol: a text the story's author wrote (an LLM
  * rule, lore, a note) and that tags or text fill-ins read. Its category is in {@code owner}: {@code ""} is the general
- * category, or the reading tag's own. {@code ^/name} is the general category too; {@code ^rule/} is an error.
+ * category, or the reading tag's own. {@code ^/name} is the general category too; {@code ^rule/} is an error, and
+ * so is a second {@code /}: references are one level, {@code ^lore/places/castle} is {@code ^lore/places-castle}.
  * </p>
  *
  * @param type  the kind of name
@@ -114,7 +115,8 @@ public record SymbolRef(Type type, String owner, String key) {
             return new SymbolRef(Type.ERROR, "", fullSymbol);
         }
         boolean needsOwner = result.type() == Type.MEMORY || result.type() == Type.ATTRIBUTE;
-        if ( result.key().isEmpty() || (needsOwner && result.owner().isEmpty()) ) {
+        boolean nestedReference = result.type() == Type.REFERENCE && result.key().contains(REFERENCE_KEY_RESOLVER);
+        if ( result.key().isEmpty() || (needsOwner && result.owner().isEmpty()) || nestedReference ) {
             return new SymbolRef(Type.ERROR, "", fullSymbol);
         }
         return result;
