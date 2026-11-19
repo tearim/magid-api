@@ -10,6 +10,7 @@ package com.zarterstein.magid.api.symbols;
  *   <tr><td>{@code $gold}</td><td>VARIABLE</td><td>{@code ""}</td><td>{@code gold}</td></tr>
  *   <tr><td>{@code #maxHp}</td><td>CONSTANT</td><td>{@code ""}</td><td>{@code maxHp}</td></tr>
  *   <tr><td>{@code ^butler}</td><td>REFERENCE</td><td>{@code ""}</td><td>{@code butler}</td></tr>
+ *   <tr><td>{@code ^rule/old-wizard}</td><td>REFERENCE</td><td>{@code rule}</td><td>{@code old-wizard}</td></tr>
  *   <tr><td>{@code player.gold}</td><td>MEMORY</td><td>{@code player}</td><td>{@code gold}</td></tr>
  *   <tr><td>{@code hero::title}</td><td>ATTRIBUTE</td><td>{@code hero}</td><td>{@code title}</td></tr>
  *   <tr><td>{@code gold} (bare)</td><td>VARIABLE</td><td>{@code ""}</td><td>{@code gold}</td></tr>
@@ -22,12 +23,17 @@ package com.zarterstein.magid.api.symbols;
  * </p>
  * <p>
  * A bare name is a variable, although variables and constants share one name space: without context the parser can't
- * tell, and the engine resolves the name against the story's declarations. A reference ({@code ^name}) names an entry
- * in a registry that isn't the symbols, such as an LLM rule; the tag that reads it decides which registry.
+ * tell, and the engine resolves the name against the story's declarations.
+ * </p>
+ * <p>
+ * A reference ({@code ^name}, {@code ^category/name}) is a read-only symbol: a text the story's author wrote (an LLM
+ * rule, lore, a note) and that tags or text fill-ins read. Its category is in {@code owner}: {@code ""} is the general
+ * category, or the reading tag's own. {@code ^/name} is the general category too; {@code ^rule/} is an error.
  * </p>
  *
  * @param type  the kind of name
- * @param owner the actor of a memory or an attribute; {@code ""} for the other kinds
+ * @param owner the actor of a memory or an attribute, the category of a reference ({@code ""}: none given); {@code ""}
+ *              for the other kinds
  * @param key   the name without prefix or owner; the input for {@link Type#ERROR}
  * @author Mark-Marion Gondelman (Creator)
  * @author Refactoring: Claude Code (agentic refactoring)
@@ -39,8 +45,10 @@ public record SymbolRef(Type type, String owner, String key) {
     public static final String VAR_RESOLVER = "$";
     /** The prefix of a constant: {@code #maxHp}. */
     public static final String CONST_RESOLVER = "#";
-    /** The prefix of a reference to a non-symbol registry entry: {@code ^butler}. */
+    /** The prefix of a reference: {@code ^butler}, {@code ^rule/old-wizard}. */
     public static final String REFERENCE_RESOLVER = "^";
+    /** Between a reference's category and its name: {@code ^rule/old-wizard}. */
+    public static final String REFERENCE_KEY_RESOLVER = "/";
     /** Between an actor and its memory: {@code player.gold}. */
     public static final String MEMORY_RESOLVER = ".";
     /** Between an actor and its attribute: {@code hero::title}. */
@@ -84,8 +92,11 @@ public record SymbolRef(Type type, String owner, String key) {
                 result = new SymbolRef(Type.CONSTANT, "", key);
             }
             else if (fullSymbol.startsWith(REFERENCE_RESOLVER)) {
-                String key = fullSymbol.substring(REFERENCE_RESOLVER.length());
-                result = new SymbolRef(Type.REFERENCE, "", key);
+                String rest = fullSymbol.substring(REFERENCE_RESOLVER.length());
+                int keyResolverPosition = rest.indexOf(REFERENCE_KEY_RESOLVER);
+                result = keyResolverPosition < 0
+                        ? new SymbolRef(Type.REFERENCE, "", rest)                                      // ^old-wizard
+                        : new SymbolRef(Type.REFERENCE, rest.substring(0, keyResolverPosition), rest.substring(keyResolverPosition + REFERENCE_KEY_RESOLVER.length()));   // ^rule/old-wizard
             }
             else if (fullSymbol.contains(ATTR_RESOLVER)) {
                 String[] info = fullSymbol.split(ATTR_RESOLVER, 2);

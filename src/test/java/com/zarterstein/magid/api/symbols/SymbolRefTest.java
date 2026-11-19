@@ -32,6 +32,36 @@ class SymbolRefTest {
     }
 
     @Test
+    @DisplayName("^rule/old-wizard is a reference to old-wizard in the category rule")
+    void referenceWithCategory() {
+        assertEquals(new SymbolRef(SymbolRef.Type.REFERENCE, "rule", "old-wizard"), SymbolRef.of("^rule/old-wizard"));
+    }
+
+    @Test
+    @DisplayName("{^rule/old-wizard} in braces is the same reference")
+    void referenceWithCategoryInBraces() {
+        assertEquals(new SymbolRef(SymbolRef.Type.REFERENCE, "rule", "old-wizard"), SymbolRef.of("{^rule/old-wizard}"));
+    }
+
+    @Test
+    @DisplayName("Only the first / separates: ^lore/places/castle is places/castle in lore")
+    void referenceKeyWithSlash() {
+        assertEquals(new SymbolRef(SymbolRef.Type.REFERENCE, "lore", "places/castle"), SymbolRef.of("^lore/places/castle"));
+    }
+
+    @Test
+    @DisplayName("^/butler is butler in the general category")
+    void referenceWithEmptyCategory() {
+        assertEquals(new SymbolRef(SymbolRef.Type.REFERENCE, "", "butler"), SymbolRef.of("^/butler"));
+    }
+
+    @Test
+    @DisplayName("^rule/ without a name is an error")
+    void referenceCategoryWithoutName() {
+        assertEquals(new SymbolRef(SymbolRef.Type.ERROR, "", "^rule/"), SymbolRef.of("^rule/"));
+    }
+
+    @Test
     @DisplayName("player.gold is the memory gold of player")
     void memory() {
         assertEquals(new SymbolRef(SymbolRef.Type.MEMORY, "player", "gold"), SymbolRef.of("player.gold"));
