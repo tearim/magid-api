@@ -129,18 +129,25 @@ public abstract class MagidTag implements MagidTagInterface {
         return bodyDynamic || attributesDynamic;
     }
 
-    /** {@inheritDoc} The value is a string: the raw value, or the evaluated one. */
+    /**
+     * {@inheritDoc} The value is a string: the raw value, or the evaluated one; {@code ""} if the evaluation gives
+     * nothing (e.g. {@code {name}} of a symbol that doesn't exist).
+     */
     @Override
     public Object getAttributeValue(String name) {
         if (!element.hasAttribute(name)) return "";
         String raw = element.attribute(name);
         determineDynamicity();
-        return attributesDynamic ? tagContext.evaluator().evaluate(raw) : raw;
+        if (!attributesDynamic) return raw;
+        String evaluated = tagContext.evaluator().evaluate(raw);
+        return evaluated == null ? "" : evaluated;
     }
 
+    /** {@inheritDoc} Never {@code null}, never {@code "null"}. */
     @Override
     public String getAttributeAsString(String name) {
-        return String.valueOf(getAttributeValue(name));
+        Object value = getAttributeValue(name);
+        return value == null ? "" : String.valueOf(value);
     }
 
     @Override

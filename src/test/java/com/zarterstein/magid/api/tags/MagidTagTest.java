@@ -64,7 +64,10 @@ class MagidTagTest {
         EvaluatorInterface evaluator = new EvaluatorInterface() {
             public boolean isEnabled() { return true; }
             public boolean hasExpressions(String text) { return text.contains("{"); }
-            public String evaluate(String text) { evaluations++; return text.replace("{name}", "Ada"); }
+            public String evaluate(String text) {
+                evaluations++;
+                return text.equals("{missing}") ? null : text.replace("{name}", "Ada");
+            }
             public Object run(String script) { return null; }
         };
         context = new TagContext() {
@@ -119,6 +122,21 @@ class MagidTagTest {
                 () -> assertEquals("Bob", tag.getAttributeValue("to")),
                 () -> assertEquals("Ada", tag.getAttributeValue("mood")),
                 () -> assertEquals(2, evaluations));
+    }
+
+    @Test
+    void attributeEvaluatingToNothingIsEmpty() {
+        assertEquals("", greet(Map.of("to", "{missing}"), "").getAttributeValue("to"));
+    }
+
+    @Test
+    void attributeEvaluatingToNothingIsAnEmptyString() {
+        assertEquals("", greet(Map.of("to", "{missing}"), "").getAttributeAsString("to"));
+    }
+
+    @Test
+    void attributeEvaluatingToNothingIsFalse() {
+        assertFalse(greet(Map.of("to", "{missing}"), "").isTrue("to"));
     }
 
     @Test

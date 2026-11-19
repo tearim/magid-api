@@ -122,13 +122,14 @@ public interface MagidTagInterface {
      * enabled, raw otherwise.
      *
      * @param name the attribute's name
-     * @return the value; {@code ""} if the attribute is missing
+     * @return the value; {@code ""} if the attribute is missing or evaluates to nothing, never {@code null}
      */
     Object getAttributeValue(String name);
 
     /**
      * @param name the attribute's name
-     * @return {@link #getAttributeValue(String)} as a string; {@code ""} if the attribute is missing
+     * @return {@link #getAttributeValue(String)} as a string; {@code ""} if the attribute is missing or evaluates to
+     *         nothing, never {@code null}
      */
     String getAttributeAsString(String name);
 

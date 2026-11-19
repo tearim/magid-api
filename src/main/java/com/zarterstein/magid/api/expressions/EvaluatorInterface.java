@@ -29,7 +29,8 @@ public interface EvaluatorInterface {
      * Substitutes the {@code {…}} parts of a text.
      *
      * @param text a text
-     * @return the text with its expressions evaluated; the text unchanged if expressions are disabled
+     * @return the text with its expressions evaluated; the text unchanged if expressions are disabled; {@code ""} if
+     *         the text is a single symbol ({@code {name}}) that doesn't exist; never {@code null}
      */
     String evaluate(String text);
 

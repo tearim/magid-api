@@ -23,6 +23,7 @@ import java.util.Optional;
  *
  * @author Mark-Marion Gondelman (Creator)
  * @author JavaDocs: Claude Code (Model: claude-opus-5-5)
+ * @author Code: Claude Code (agentic implementation: the readers get and getString)
  */
 public interface SymbolPinax {
 
@@ -40,6 +41,39 @@ public interface SymbolPinax {
      * @return its value, or empty if it doesn't exist or the name is malformed
      */
     Optional<Reverie<?>> recall(String symbol);
+
+    /**
+     * Reads a symbol's plain value, for when its type and absence don't matter; {@link #recall} tells them apart.
+     *
+     * @param symbol the symbol, as for {@link #recall}
+     * @return its value ({@code Integer}, {@code Float}, {@code Boolean} or {@code String}); {@code null} if it
+     *         doesn't exist or the name is malformed
+     */
+    default Object get(String symbol) {
+        return recall(symbol).map(Reverie::get).orElse(null);
+    }
+
+    /**
+     * Reads a symbol as text, e.g. to put it into a prompt or a narration.
+     *
+     * @param symbol the symbol, as for {@link #recall}
+     * @return its value as text ({@code 42}, {@code 2.5}, {@code true}); {@code ""} if it doesn't exist or the name
+     *         is malformed
+     */
+    default String getString(String symbol) {
+        return getString(symbol, "");
+    }
+
+    /**
+     * Reads a symbol as text, with a fallback.
+     *
+     * @param symbol   the symbol, as for {@link #recall}
+     * @param fallback what to return if it doesn't exist or the name is malformed
+     * @return its value as text, or {@code fallback}
+     */
+    default String getString(String symbol, String fallback) {
+        return recall(symbol).map(reverie -> String.valueOf(reverie.get())).orElse(fallback);
+    }
 
     /**
      * Sets an existing symbol (or creates it, if the story allows undeclared symbols). A plain value is converted to
