@@ -68,4 +68,10 @@ public interface TagContext {
     default PluginPropsInterface pluginProps() {
         return PluginPropsInterface.NONE;
     }
+
+    /**
+     * @return the session's stash: objects tags keep for later, not saved, cleared when the story or the tagpacks are
+     *         reloaded ({@link StoryObjectStash})
+     */
+    StoryObjectStash stash();
 }

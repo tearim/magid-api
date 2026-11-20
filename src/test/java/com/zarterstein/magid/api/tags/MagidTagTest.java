@@ -73,6 +73,7 @@ class MagidTagTest {
         context = new TagContext() {
             public StoryObjectModel som() { return som; }
             public SymbolPinax symbols() { return null; }
+            public StoryObjectStash stash() { return new StoryObjectStashTest.MapStash(); }
             public EvaluatorInterface evaluator() { return evaluator; }
             public String blockName() { return "description"; }
             public Outcome executeBlock(List<TagNode> nodes) { return Outcome.proceed(); }
