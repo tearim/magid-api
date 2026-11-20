@@ -27,6 +27,7 @@ class StoryObjectStashTest {
         int clears = 0;
 
         public Object get(String key) { return objects.get(key); }
+        public boolean has(String key) { return objects.containsKey(key); }
         public void put(String key, Object value) { if (value == null) objects.remove(key); else objects.put(key, value); }
         public void remove(String key) { objects.remove(key); }
         public Set<String> keys() { return Set.copyOf(objects.keySet()); }

@@ -38,6 +38,13 @@ public interface StoryObjectStash extends AutoCloseable {
     Object get(String key);
 
     /**
+     * @param key the key
+     * @return whether an object is stored under it (a stash holds no {@code null}s, so this is
+     *         {@code get(key) != null})
+     */
+    boolean has(String key);
+
+    /**
      * Stores an object, replacing the one under the key. The replaced object is not closed: whoever replaces it
      * closes it, if it needs closing.
      *
