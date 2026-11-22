@@ -1,5 +1,6 @@
 package com.zarterstein.magid.api.tags;
 
+import com.zarterstein.magid.api.access.Caller;
 import com.zarterstein.magid.api.expressions.EvaluatorInterface;
 import com.zarterstein.magid.api.packs.PluginPropsInterface;
 import com.zarterstein.magid.api.som.StoryObjectModel;
@@ -74,4 +75,15 @@ public interface TagContext {
      *         reloaded ({@link StoryObjectStash})
      */
     StoryObjectStash stash();
+
+    /**
+     * Who runs the tag, as the tag's own pack may see it ({@link Caller}): the access level, an id of its own for the
+     * account, the locale, group checks. The engine gives each pack its own; this default, for contexts that have no
+     * account (a test's fake), gives {@link Caller#NONE}.
+     *
+     * @return the caller; never {@code null}
+     */
+    default Caller caller() {
+        return Caller.NONE;
+    }
 }

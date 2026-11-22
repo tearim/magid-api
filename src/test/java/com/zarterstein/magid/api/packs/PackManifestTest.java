@@ -70,6 +70,18 @@ class PackManifestTest {
         }
 
         @Test
+        @DisplayName("The engine's own pack id is reserved")
+        void core() {
+            assertFalse(PackManifest.isValidId(PackManifest.TAGPACK_CORE));
+        }
+
+        @Test
+        @DisplayName("An id that only starts with the engine's pack id is fine")
+        void startsWithCore() {
+            assertTrue(PackManifest.isValidId("core-extras"));
+        }
+
+        @Test
         @DisplayName("Empty and null are not ids")
         void emptyAndNull() {
             assertFalse(PackManifest.isValidId(""));

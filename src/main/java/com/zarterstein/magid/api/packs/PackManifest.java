@@ -40,6 +40,11 @@ public final class PackManifest {
      * pack's tags without a prefix.
      */
     public static final String NO_PREFIX = "none";
+    /**
+     * The pack the engine's own tags belong to. No plugin may take it as its {@link #ID}: it would read the engine's
+     * settings ({@code magid.plugin.core.*}) and see the {@link com.zarterstein.magid.api.access.Caller} core tags see.
+     */
+    public static final String TAGPACK_CORE = "core";
 
     /**
      * The form of an {@link #ID}. No underscore: a plugin's settings {@code magid.plugin.<id>.<key>} are also read
@@ -55,10 +60,11 @@ public final class PackManifest {
 
     /**
      * @param id a plugin id, or {@code null}
-     * @return whether {@code id} has the {@link #ID_FORM}; {@code false} for {@code null}
+     * @return whether {@code id} has the {@link #ID_FORM} and isn't {@link #TAGPACK_CORE}; {@code false} for
+     *         {@code null}
      */
     public static boolean isValidId(String id) {
-        return id != null && id.matches(ID_FORM);
+        return id != null && id.matches(ID_FORM) && !id.equals(TAGPACK_CORE);
     }
 
     /**
