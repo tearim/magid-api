@@ -21,6 +21,12 @@ package com.zarterstein.magid.api.streams;
  * one request at a time, and the worker runs beside it. It only produces text; the stream is thread-safe.
  * </p>
  * <p>
+ * <b>A warm-up message.</b> A model may take seconds before its first word. {@link #warmUp} shows a text meanwhile
+ * ("The wizard ponders…"); the first {@link #append} replaces it. Clients mark the stream's element by its phase
+ * ({@code magid-stream-warming-up}, {@code -receiving}, {@code -finished}), so a story's CSS can show the warm-up
+ * differently.
+ * </p>
+ * <p>
  * <b>Plain text.</b> A client inserts a stream's text as text, never as markup.
  * </p>
  *
@@ -42,11 +48,10 @@ public interface TagStream {
         @Override public String id() { return ""; }
         @Override public boolean isOpen() { return false; }
         @Override public boolean isCancelled() { return false; }
-        @Override public boolean didStreamingBegin() { return false; }
         @Override public void append(String text) { }
         @Override public void done(String wholeText) { }
         @Override public void fail(String fallback) { }
-        @Override public void setText(String text) { }
+        @Override public void warmUp(String text) { }
         @Override public String toString() { return "TagStream.NONE"; }
     };
 
@@ -69,7 +74,6 @@ public interface TagStream {
      */
     boolean isOpen();
 
-    boolean didStreamingBegin();
     /**
      * @return whether the engine ended the stream (the scene changed, the session ended, it took too long): the
      *         worker should stop, which also stops paying for a model's tokens
@@ -104,6 +108,13 @@ public interface TagStream {
      */
     void fail(String fallback);
 
-
-    void setText(String text);
+    /**
+     * Shows {@code text} in place of the stream until its first {@link #append}, which replaces it. Clients see the
+     * stream as warming up meanwhile. Call it before the work starts; ignored once text was appended or the stream has
+     * ended. Ending the stream without any text appended ends it with {@code ""} (or {@code done}'s or {@code fail}'s
+     * text), never with the warm-up message.
+     *
+     * @param text what to show until the stream's text comes, plain text; {@code null} or {@code ""} for nothing
+     */
+    void warmUp(String text);
 }

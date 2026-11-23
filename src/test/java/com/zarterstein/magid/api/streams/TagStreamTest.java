@@ -41,13 +41,12 @@ class TagStreamTest {
     void aStreamsPlaceholderIsItsIdsPlaceholder() {
         TagStream stream = new TagStream() {
             public String id() { return "str-7"; }
-            public boolean didStreamingBegin() {return true;}
             public boolean isOpen() { return true; }
             public boolean isCancelled() { return false; }
             public void append(String text) { }
             public void done(String wholeText) { }
             public void fail(String fallback) { }
-            public void setText(String text) { }
+            public void warmUp(String text) { }
         };
 
         assertEquals("⟪stream:str-7⟫", stream.placeholder());
