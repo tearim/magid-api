@@ -42,9 +42,11 @@ public interface TagStream {
         @Override public String id() { return ""; }
         @Override public boolean isOpen() { return false; }
         @Override public boolean isCancelled() { return false; }
+        @Override public boolean didStreamingBegin() { return false; }
         @Override public void append(String text) { }
         @Override public void done(String wholeText) { }
         @Override public void fail(String fallback) { }
+        @Override public void setText(String text) { }
         @Override public String toString() { return "TagStream.NONE"; }
     };
 
@@ -67,6 +69,7 @@ public interface TagStream {
      */
     boolean isOpen();
 
+    boolean didStreamingBegin();
     /**
      * @return whether the engine ended the stream (the scene changed, the session ended, it took too long): the
      *         worker should stop, which also stops paying for a model's tokens
@@ -100,4 +103,7 @@ public interface TagStream {
      * @param fallback the text to show, e.g. the tag's {@code default}
      */
     void fail(String fallback);
+
+
+    void setText(String text);
 }
