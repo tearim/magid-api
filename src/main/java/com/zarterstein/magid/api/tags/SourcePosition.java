@@ -12,8 +12,8 @@ import java.util.Objects;
  * </p>
  *
  * <pre>{@code
- * throw new TagAttributeException("<roll> needs a number of sides", "sides", position);
- * // <roll> needs a number of sides (XML source (dice.xml): around line 12, column 4)
+ * throw new MissingTagAttributeException(element, "sides");  // the element gives the position
+ * // `roll` needs a `sides` attribute (XML source (dice.xml): around line 12, column 4)
  * }</pre>
  *
  * @param file     the file's name, e.g. {@code story.xml}; {@link #UNKNOWN_FILE} if the engine doesn't know it

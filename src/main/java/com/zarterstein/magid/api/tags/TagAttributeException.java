@@ -1,15 +1,16 @@
 package com.zarterstein.magid.api.tags;
 
 /**
- * A tag's attribute is missing, or its value is wrong.
+ * A tag's attribute is missing, or its value is wrong. For the usual cases, {@link MissingTagAttributeException} and
+ * {@link BadTagAttributeException} write the message themselves; this class takes one of your own.
  *
  * <pre>{@code
  * if (sides < 2) {
- *     throw new TagAttributeException("<roll sides=\"…\"> must be at least 2", "sides", position);
+ *     throw new TagAttributeException("a die needs at least 2 sides", element, "sides");
  * }
  * }</pre>
  *
- * @author Mark-Marion Gondelman (Orchestration)
+ * @author Mark-Marion Gondelman (Design, Orchestration)
  * @author Code: Claude Code (agentic implementation)
  */
 public class TagAttributeException extends TagException {
@@ -24,22 +25,32 @@ public class TagAttributeException extends TagException {
     }
 
     /**
-     * @param message  what is wrong, for the author
-     * @param position where (the element's position, as the attribute's name isn't given);
-     *                 {@link SourcePosition#UNKNOWN} (or {@code null}) if unknown
+     * @param message what is wrong, for the author
+     * @param element the element; its position ends the message; {@code null} if none
      */
-    public TagAttributeException(String message, SourcePosition position) {
-        this(message, null, position);
+    public TagAttributeException(String message, TagElement element) {
+        this(message, element, null);
     }
 
     /**
      * @param message   what is wrong, for the author
-     * @param attribute the attribute's name; {@code null} or {@code ""} if not given
-     * @param position  where: the attribute's position if it is present, else its element's;
-     *                  {@link SourcePosition#UNKNOWN} (or {@code null}) if unknown
+     * @param element   the element; {@code null} if none
+     * @param attribute the attribute's name; its position (else the element's) ends the message; {@code null} or
+     *                  {@code ""} if not given
      */
-    public TagAttributeException(String message, String attribute, SourcePosition position) {
-        super(message, position);
+    public TagAttributeException(String message, TagElement element, String attribute) {
+        this(message, element, attribute, attribute);
+    }
+
+    /**
+     * @param message           what is wrong, for the author
+     * @param element           the element; {@code null} if none
+     * @param attribute         the attribute's name ({@link #attribute()})
+     * @param positionAttribute the attribute whose position ends the message; {@code null} for the element's (a
+     *                          missing attribute has no position of its own)
+     */
+    protected TagAttributeException(String message, TagElement element, String attribute, String positionAttribute) {
+        super(message, element, positionAttribute, null);
         this.attribute = attribute == null ? "" : attribute;
     }
 
@@ -48,5 +59,10 @@ public class TagAttributeException extends TagException {
      */
     public String attribute() {
         return attribute;
+    }
+
+    /** @return {@code ": " + explanation}, or {@code ""} for none */
+    static String explained(String explanation) {
+        return explanation == null || explanation.isBlank() ? "" : ": " + explanation.strip();
     }
 }

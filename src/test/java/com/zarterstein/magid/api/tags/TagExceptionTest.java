@@ -2,12 +2,15 @@ package com.zarterstein.magid.api.tags;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * {@link SourcePosition}, {@link TagException} and its subclasses: the message ends with the position when there is
- * one.
+ * {@link SourcePosition}, {@link TagException} and its subclasses: the message ends with the element's position when
+ * it has one; the attribute exceptions and {@link MisplacedTagException} write their messages themselves.
  *
  * @author Mark-Marion Gondelman (Orchestration)
  * @author Code: Claude Code (agentic implementation)
@@ -15,6 +18,25 @@ import static org.junit.jupiter.api.Assertions.*;
 class TagExceptionTest {
 
     private static final SourcePosition AT = new SourcePosition("dice.xml", "XML", 12, 4);
+    private static final SourcePosition AT_SIDES = new SourcePosition("dice.xml", "XML", 12, 10);
+    private static final String WHERE = " (XML source (dice.xml): around line 12, column 4)";
+
+    /** A {@code <dice-roll>} at {@link #AT}; its attributes are at {@link #AT_SIDES}. */
+    private record Roll(Map<String, String> attributes) implements TagElement {
+        @Override public String name() { return "dice-roll"; }
+        @Override public String localName() { return "roll"; }
+        @Override public String attribute(String n) { return attributes.getOrDefault(n, ""); }
+        @Override public boolean hasAttribute(String n) { return attributes.containsKey(n); }
+        @Override public Set<String> attributeNames() { return attributes.keySet(); }
+        @Override public boolean isTrue(String n, boolean fallback) { return fallback; }
+        @Override public String text() { return ""; }
+        @Override public List<TagNode> children() { return List.of(); }
+        @Override public SourcePosition position() { return AT; }
+        @Override public SourcePosition position(String attribute) { return hasAttribute(attribute) ? AT_SIDES : AT; }
+    }
+
+    private static final Roll ROLL = new Roll(Map.of("sides", "banana"));
+    private static final Roll BARE_ROLL = new Roll(Map.of());
 
     // ─── SourcePosition ─────────────────────────────────────────────────────
 
@@ -59,41 +81,44 @@ class TagExceptionTest {
     // ─── TagException ───────────────────────────────────────────────────────
 
     @Test
-    void messageWithoutPositionIsUnchanged() {
-        TagException e = new TagException("Bad roll");
-        assertAll(
-                () -> assertEquals("Bad roll", e.getMessage()),
-                () -> assertEquals(SourcePosition.UNKNOWN, e.position()));
+    void messageWithoutAnElementIsUnchanged() {
+        assertEquals("Bad roll", new TagException("Bad roll").getMessage());
     }
 
     @Test
-    void messageEndsWithThePosition() {
-        TagException e = new TagException("Bad roll", AT);
-        assertAll(
-                () -> assertEquals("Bad roll (XML source (dice.xml): around line 12, column 4)", e.getMessage()),
-                () -> assertEquals(AT, e.position()));
+    void withoutAnElementThePositionIsUnknown() {
+        assertEquals(SourcePosition.UNKNOWN, new TagException("Bad roll").position());
     }
 
     @Test
-    void nullPositionIsNoPosition() {
-        TagException e = new TagException("Bad roll", null);
-        assertAll(
-                () -> assertEquals("Bad roll", e.getMessage()),
-                () -> assertEquals(SourcePosition.UNKNOWN, e.position()));
+    void withoutAnElementTheTagNameIsEmpty() {
+        assertEquals("", new TagException("Bad roll").tagName());
     }
 
     @Test
-    void unknownPositionAddsNothingToTheMessage() {
-        TagException e = new TagException("Bad roll", SourcePosition.UNKNOWN);
-        assertAll(
-                () -> assertEquals("Bad roll", e.getMessage()),
-                () -> assertEquals(SourcePosition.UNKNOWN, e.position()));
+    void messageEndsWithTheElementsPosition() {
+        assertEquals("Bad roll" + WHERE, new TagException("Bad roll", ROLL).getMessage());
+    }
+
+    @Test
+    void thePositionIsTheElements() {
+        assertEquals(AT, new TagException("Bad roll", ROLL).position());
+    }
+
+    @Test
+    void theTagNameIsTheElementsAsWritten() {
+        assertEquals("dice-roll", new TagException("Bad roll", ROLL).tagName());
+    }
+
+    @Test
+    void aNullElementIsNoElement() {
+        assertEquals("Bad roll", new TagException("Bad roll", (TagElement) null).getMessage());
     }
 
     @Test
     void causeIsKept() {
         IllegalStateException cause = new IllegalStateException("no dice");
-        assertSame(cause, new TagException("Bad roll", AT, cause).getCause());
+        assertSame(cause, new TagException("Bad roll", ROLL, cause).getCause());
     }
 
     @Test
@@ -101,30 +126,117 @@ class TagExceptionTest {
         assertInstanceOf(RuntimeException.class, new TagException("Bad roll"));
     }
 
-    // ─── subclasses ─────────────────────────────────────────────────────────
+    // ─── TagAttributeException ──────────────────────────────────────────────
 
     @Test
     void attributeExceptionNamesTheAttribute() {
-        TagAttributeException e = new TagAttributeException("Bad sides", "sides", AT);
-        assertAll(
-                () -> assertEquals("sides", e.attribute()),
-                () -> assertEquals(AT, e.position()),
-                () -> assertTrue(e.getMessage().endsWith("around line 12, column 4)"), e.getMessage()));
+        assertEquals("sides", new TagAttributeException("Bad sides", ROLL, "sides").attribute());
     }
 
     @Test
-    void attributeExceptionWithoutAttributeName() {
-        TagAttributeException e = new TagAttributeException("Bad sides", AT);
-        assertAll(
-                () -> assertEquals("", e.attribute()),
-                () -> assertEquals(AT, e.position()));
+    void attributeExceptionHasTheAttributesPosition() {
+        assertEquals(AT_SIDES, new TagAttributeException("Bad sides", ROLL, "sides").position());
     }
 
     @Test
-    void contextExceptionCarriesThePosition() {
-        TagContextException e = new TagContextException("<card> must be inside a <deck>", AT);
-        assertAll(
-                () -> assertInstanceOf(TagException.class, e),
-                () -> assertEquals(AT, e.position()));
+    void attributeExceptionWithoutAttributeHasTheElementsPosition() {
+        assertEquals(AT, new TagAttributeException("Bad sides", ROLL).position());
+    }
+
+    @Test
+    void attributeExceptionWithoutAttributeNamesNone() {
+        assertEquals("", new TagAttributeException("Bad sides", ROLL).attribute());
+    }
+
+    // ─── MissingTagAttributeException ───────────────────────────────────────
+
+    @Test
+    void missingAttributeWritesTheMessage() {
+        assertEquals("`dice-roll` needs a `sides` attribute" + WHERE,
+                new MissingTagAttributeException(BARE_ROLL, "sides").getMessage());
+    }
+
+    @Test
+    void missingAttributeAddsTheExplanation() {
+        assertEquals("`dice-roll` needs a `sides` attribute: how many sides the die has" + WHERE,
+                new MissingTagAttributeException(BARE_ROLL, "sides", "how many sides the die has").getMessage());
+    }
+
+    @Test
+    void missingAttributeWithABlankExplanationAddsNothing() {
+        assertEquals("`dice-roll` needs a `sides` attribute" + WHERE,
+                new MissingTagAttributeException(BARE_ROLL, "sides", "  ").getMessage());
+    }
+
+    @Test
+    void missingAttributeNamesTheAttribute() {
+        assertEquals("sides", new MissingTagAttributeException(BARE_ROLL, "sides").attribute());
+    }
+
+    @Test
+    void missingAttributeIsAnAttributeException() {
+        assertInstanceOf(TagAttributeException.class, new MissingTagAttributeException(BARE_ROLL, "sides"));
+    }
+
+    @Test
+    void missingAttributeNeedsAnElement() {
+        assertThrows(NullPointerException.class, () -> new MissingTagAttributeException(null, "sides"));
+    }
+
+    // ─── BadTagAttributeException ───────────────────────────────────────────
+
+    @Test
+    void badAttributeQuotesTheValue() {
+        assertEquals("`dice-roll` has a bad `sides` attribute (`banana`) (XML source (dice.xml): around line 12, column 10)",
+                new BadTagAttributeException(ROLL, "sides").getMessage());
+    }
+
+    @Test
+    void badAttributeAddsTheExplanation() {
+        String message = new BadTagAttributeException(ROLL, "sides", "a whole number, at least 2").getMessage();
+        assertTrue(message.startsWith("`dice-roll` has a bad `sides` attribute (`banana`): a whole number, at least 2 ("),
+                message);
+    }
+
+    @Test
+    void badAttributeHasTheAttributesPosition() {
+        assertEquals(AT_SIDES, new BadTagAttributeException(ROLL, "sides").position());
+    }
+
+    @Test
+    void badAttributeShortensALongValue() {
+        Roll roll = new Roll(Map.of("sides", "x".repeat(100)));
+        String message = new BadTagAttributeException(roll, "sides").getMessage();
+        assertTrue(message.contains("(`" + "x".repeat(BadTagAttributeException.MAX_QUOTED) + "…`)"), message);
+    }
+
+    @Test
+    void badAttributeThatIsAbsentQuotesNothing() {
+        assertEquals("`dice-roll` has a bad `sides` attribute" + WHERE,
+                new BadTagAttributeException(BARE_ROLL, "sides").getMessage());
+    }
+
+    // ─── context ────────────────────────────────────────────────────────────
+
+    @Test
+    void contextExceptionHasTheElementsPosition() {
+        assertEquals(AT, new TagContextException("not here", ROLL).position());
+    }
+
+    @Test
+    void misplacedTagSaysWhereItBelongs() {
+        assertEquals("`dice-roll` must be inside `dice-cup`" + WHERE,
+                new MisplacedTagException(ROLL, "dice-cup").getMessage());
+    }
+
+    @Test
+    void misplacedTagSaysWhereItIs() {
+        assertEquals("`dice-roll` must be inside `dice-cup`, not inside `description`" + WHERE,
+                new MisplacedTagException(ROLL, "dice-cup", "description").getMessage());
+    }
+
+    @Test
+    void misplacedTagIsAContextException() {
+        assertInstanceOf(TagContextException.class, new MisplacedTagException(ROLL, "dice-cup"));
     }
 }
