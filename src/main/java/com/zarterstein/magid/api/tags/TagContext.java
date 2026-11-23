@@ -86,4 +86,15 @@ public interface TagContext {
     default Caller caller() {
         return Caller.NONE;
     }
+
+    /**
+     * Streams: text the tag goes on producing after the response ({@link com.zarterstein.magid.api.streams.TagStream}).
+     * This default, for contexts that can't stream (a test's fake, a client that doesn't take streams), opens only
+     * {@link com.zarterstein.magid.api.streams.TagStream#NONE}.
+     *
+     * @return the session's streams; never {@code null}
+     */
+    default com.zarterstein.magid.api.streams.TagStreams streams() {
+        return com.zarterstein.magid.api.streams.TagStreams.NONE;
+    }
 }
