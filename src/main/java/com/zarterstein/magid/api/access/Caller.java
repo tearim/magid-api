@@ -72,4 +72,14 @@ public interface Caller {
      * @return whether the account belongs to the group
      */
     boolean inGroup(String group);
+
+    /**
+     * Objects that follow this caller across sessions and stories, bound to the asking tag's story and pack. Every
+     * tag of every pack, in every story the same user runs, sees what any other tag placed there ({@link CallerStash}).
+     *
+     * @return the caller's stash; {@link CallerStash#NONE}, which stores nothing, unless the server gives one
+     */
+    default CallerStash stash() {
+        return CallerStash.NONE;
+    }
 }

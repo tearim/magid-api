@@ -29,7 +29,7 @@ import java.util.function.Supplier;
  * @author Mark-Marion Gondelman (Creator)
  * @author JavaDocs: Claude Code (Model: claude-opus-5-5)
  */
-public interface StoryObjectStash extends AutoCloseable {
+public interface StoryObjectStash extends ObjectStash, AutoCloseable {
 
     /**
      * @param key the key, e.g. {@code magid-ollama-pack/history/wizard}
