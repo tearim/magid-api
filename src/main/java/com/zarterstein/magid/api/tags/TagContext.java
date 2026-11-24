@@ -3,7 +3,9 @@ package com.zarterstein.magid.api.tags;
 import com.zarterstein.magid.api.access.Caller;
 import com.zarterstein.magid.api.expressions.EvaluatorInterface;
 import com.zarterstein.magid.api.packs.PluginPropsInterface;
+import com.zarterstein.magid.api.packs.PluginResources;
 import com.zarterstein.magid.api.som.StoryObjectModel;
+import com.zarterstein.magid.api.streams.TagStreams;
 import com.zarterstein.magid.api.symbols.SymbolPinax;
 
 import java.util.List;
@@ -94,7 +96,18 @@ public interface TagContext {
      *
      * @return the session's streams; never {@code null}
      */
-    default com.zarterstein.magid.api.streams.TagStreams streams() {
-        return com.zarterstein.magid.api.streams.TagStreams.NONE;
+    default TagStreams streams() {
+        return TagStreams.NONE;
+    }
+
+    /**
+     * Files of the tag's own pack, read by key ({@link PluginResources}): the server's
+     * {@code <plugins>/<pack-id>/<key>} first, then the pack's class path. The engine gives each tag its pack's; this
+     * default, for contexts without an engine (a test's fake), finds nothing ({@link PluginResources#NONE}).
+     *
+     * @return the pack's files; never {@code null}
+     */
+    default PluginResources pluginResources() {
+        return PluginResources.NONE;
     }
 }
