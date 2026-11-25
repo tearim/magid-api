@@ -10,8 +10,8 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * {@link PluginResources}: which keys are valid, what {@link PluginResources#NONE} finds, and how {@code text} reads
- * {@code bytes}.
+ * {@link PluginResources}: which keys are valid, what {@link PluginResources#NONE} finds, and how {@code text} and
+ * {@code exists} read {@code bytes}.
  *
  * @author Mark-Marion Gondelman (Orchestration)
  * @author Code: Claude Code (agentic implementation)
@@ -160,6 +160,16 @@ class PluginResourcesTest {
     }
 
     @Test
+    void noneHasNoFileThere() {
+        assertFalse(PluginResources.NONE.exists("prompts/a.txt"));
+    }
+
+    @Test
+    void noneRefusesAnInvalidKeyForExists() {
+        assertThrows(IllegalArgumentException.class, () -> PluginResources.NONE.exists("../a.txt"));
+    }
+
+    @Test
     void noneRefusesAnInvalidKeyForTheSearchPath() {
         assertThrows(IllegalArgumentException.class, () -> PluginResources.NONE.searchPath("../a.txt"));
     }
@@ -200,6 +210,30 @@ class PluginResourcesTest {
         PluginResources files = filesOf(Map.of());
 
         assertEquals(Optional.empty(), files.text("a.txt"));
+    }
+
+    @Test
+    void aFileThereExists() {
+        PluginResources files = filesOf(Map.of("a.txt", "a".getBytes(StandardCharsets.UTF_8)));
+
+        assertTrue(files.exists("a.txt"));
+    }
+
+    @Test
+    void anEmptyFileExists() {
+        PluginResources files = filesOf(Map.of("a.txt", new byte[0]));
+
+        assertTrue(files.exists("a.txt"));
+    }
+
+    @Test
+    void aMissingFileDoesNotExist() {
+        assertFalse(filesOf(Map.of()).exists("a.txt"));
+    }
+
+    @Test
+    void existsRefusesAnInvalidKey() {
+        assertThrows(IllegalArgumentException.class, () -> filesOf(Map.of()).exists("../a.txt"));
     }
 
     @Test

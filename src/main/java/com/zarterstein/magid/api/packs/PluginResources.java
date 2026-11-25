@@ -79,6 +79,19 @@ public interface PluginResources {
     }
 
     /**
+     * Whether a file is there, as {@link #bytes} would find it: a file larger than {@link #MAX_BYTES} is not. For
+     * choosing among keys ({@code decide.qwen2.5-3b__latest.txt}, then {@code decide.default.txt}) and for checking a
+     * pack's files while developing it. An engine may answer without copying the bytes.
+     *
+     * @param key the file's key
+     * @return {@code true} if {@link #bytes} would return the file
+     * @throws IllegalArgumentException if the key is not valid ({@link #isValidKey})
+     */
+    default boolean exists(String key) {
+        return bytes(key).isPresent();
+    }
+
+    /**
      * Where {@link #bytes} looks for a key, in order, for messages: an absolute path in the server's directory (left
      * out if the server has no plugin directory), then {@code classpath:/<key>}. Tells whoever runs the server where
      * a missing file goes.
