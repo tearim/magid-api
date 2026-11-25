@@ -110,4 +110,29 @@ public interface TagContext {
     default PluginResources pluginResources() {
         return PluginResources.NONE;
     }
+
+    /**
+     * Whether the server runs in development mode ({@code magid.dev}; the engine's is
+     * {@code MagidConfig.isEnabled("magid.dev")}), e.g. for debug output a tag gives only there.
+     * This default, for contexts without an engine (a test's fake), is off.
+     *
+     * @return {@code true} on a dev server
+     */
+    default boolean isDevMode() {
+        return false;
+    }
+
+    /**
+     * Magid's one yes/no rule, as the engine applies it to its settings: {@code enabled}, {@code true}, {@code 1} and
+     * {@code yes} (any case) are on; everything else, {@code null} included, is off. For a tag's own on/off
+     * attributes, so they read as the engine's switches do. The engine's is {@code MagidConfig.testEnabled(String)}
+     * (com.zarterstein.MagidConfig, magid-core), the rule's one source. Takes a <b>value</b>, not a setting's key:
+     * {@code isEnabled(evaluated(el, "debug-info"))}. This default, for contexts without an engine, is off.
+     *
+     * @param value the value to test, e.g. an attribute's; may be {@code null}
+     * @return {@code true} if the value means "on"
+     */
+    default boolean isEnabled(String value) {
+        return false;
+    }
 }
